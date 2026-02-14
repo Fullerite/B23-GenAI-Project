@@ -1,0 +1,11 @@
+aiohttp
+beautifulsoup4
+chromadb
+langchain-text-splitters
+markdownify
+pandas
+python-dotenv
+requests
+sentence-transformers
+streamlit
+tqdm
