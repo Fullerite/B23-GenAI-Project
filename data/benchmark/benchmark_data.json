@@ -1,0 +1,252 @@
+[
+    {
+        "question": "What change occurs to the watcher callback signature when the 'immediate' option is set to true?",
+        "answer": "When 'immediate' is true, the callback changes from receiving a list of mutations to receiving three specific arguments: (newValue, oldValue, info).",
+        "source": "interfaces_src_core_object_watch_interface.WatchOptions.md"
+    },
+    {
+        "question": "How does the 'collapse' property affect mutation events when enabled?",
+        "answer": "When 'collapse' is true, all mutation events fire as if they occur on the top-level properties of the watchable object.",
+        "source": "interfaces_src_core_object_watch_interface.WatchOptions.md"
+    },
+    {
+        "question": "What is the purpose of the 'prefixes' and 'postfixes' properties in WatchOptions?",
+        "answer": "They provide lists of prefixes or postfixes for paths to watch, which helps the watcher identify and monitor mutations related to accessors.",
+        "source": "interfaces_src_core_object_watch_interface.WatchOptions.md"
+    },
+    {
+        "question": "By default, does the watcher fire callbacks for mutations of properties found in an object's prototype?",
+        "answer": "No, it does not by default; the 'withProto' option must be set to true to enable firing callbacks for prototype property mutations.",
+        "source": "interfaces_src_core_object_watch_interface.WatchOptions.md"
+    },
+    {
+        "question": "What functionality does the 'eventFilter' property provide?",
+        "answer": "It is a filter function that allows the developer to skip specific mutation events based on the mutation's value, old value, or metadata.",
+        "source": "interfaces_src_core_object_watch_interface.WatchOptions.md"
+    },
+    {
+        "question": "When using the 'wrapDataProvider' method, how is the group name determined if a specific group is provided for a request?",
+        "answer": "If a group is provided to the method, it is joined with the global group (the provider name) using the ':' character (e.g., 'api.User:bla').",
+        "source": "classes_src_core_async_modules_wrappers.default.md"
+    },
+    {
+        "question": "What is the consequence of setting the 'locked' property to true in the Async class?",
+        "answer": "If 'locked' is true, all new async tasks will not be registered.",
+        "source": "classes_src_core_async_modules_wrappers.default.md"
+    },
+    {
+        "question": "What standard methods does 'wrapEventEmitter' add to a raw event emitter to make its API more universal?",
+        "answer": "It adds a bunch of standard methods such as 'on' and 'once'.",
+        "source": "classes_src_core_async_modules_wrappers.default.md"
+    },
+    {
+        "question": "According to the documentation for 'cancelIterable', what is the specific limitation of cancellation regarding the object's state?",
+        "answer": "Cancellation affects only objects that have already been activated by invoking the 'next' method.",
+        "source": "classes_src_core_async_modules_wrappers.default.md"
+    },
+    {
+        "question": "What happens to a promise wrapper if the underlying promise is resolved while it is muted using 'mutePromise'?",
+        "answer": "The promise wrapper will be rejected if the underlying promise is resolved while muted.",
+        "source": "classes_src_core_async_modules_wrappers.default.md"
+    },
+    {
+        "question": "What does the 'wait' method in the timers module return?",
+        "answer": "It returns a promise that will be resolved only when the specified function returns a positive value (equivalent to true).",
+        "source": "classes_src_core_async_modules_timers.default.md"
+    },
+    {
+        "question": "Which method should be used to get a promise that resolves on the next tick of the event loop?",
+        "answer": "The 'nextTick' method.",
+        "source": "classes_src_core_async_modules_timers.default.md"
+    },
+    {
+        "question": "What is the return type of the 'idle' method and when is it resolved?",
+        "answer": "It returns a Promise<IdleDeadline> and is resolved on the process idle.",
+        "source": "classes_src_core_async_modules_timers.default.md"
+    },
+    {
+        "question": "Which native function is 'cancelIdleCallback' an alias wrapper for?",
+        "answer": "It is a wrapper for 'globalThis.cancelIdleCallback'.",
+        "source": "classes_src_core_async_modules_timers.default.md"
+    },
+    {
+        "question": "How does the 'sleep' method function within this class?",
+        "answer": "It returns a promise that will be resolved after a specified timeout period.",
+        "source": "classes_src_core_async_modules_timers.default.md"
+    },
+    {
+        "question": "Which interface does FullClearOptions inherit from?",
+        "answer": "FullClearOptions inherits from the ClearProxyOptions interface.",
+        "source": "interfaces_src_core_async_interface.FullClearOptions.md"
+    },
+    {
+        "question": "What does the mandatory 'name' property represent in FullClearOptions?",
+        "answer": "The 'name' property represents the namespace of the task to be cleared.",
+        "source": "interfaces_src_core_async_interface.FullClearOptions.md"
+    },
+    {
+        "question": "What are the allowed string literal values for the 'reason' property?",
+        "answer": "The allowed values for 'reason' are 'id', 'group', 'label', 'rgxp', 'all', 'muting', and 'collision'.",
+        "source": "interfaces_src_core_async_interface.FullClearOptions.md"
+    },
+    {
+        "question": "In the FullClearOptions interface, what is the purpose of the 'replacedBy' property?",
+        "answer": "It provides a link to a task that replaces the current one.",
+        "source": "interfaces_src_core_async_interface.FullClearOptions.md"
+    },
+    {
+        "question": "What effect does setting 'preventDefault' to true have on a task?",
+        "answer": "Setting 'preventDefault' to true prevents the cleanup handler of the task from executing.",
+        "source": "interfaces_src_core_async_interface.FullClearOptions.md"
+    },
+    {
+        "question": "What are the two strategies available for the 'join' property when handling competitive tasks with the same label?",
+        "answer": "The two strategies are 'true' (where all tasks are joined to the first) and ''replace'' (where all tasks are joined or replaced by the last, which only applies to promises).",
+        "source": "interfaces_src_core_async_modules_base_interface.AsyncProxyOptions.md"
+    },
+    {
+        "question": "How does assigning a 'label' to a task affect other tasks already running with that same label?",
+        "answer": "If a task is assigned a label, any previous task with that same label will be canceled.",
+        "source": "interfaces_src_core_async_modules_base_interface.AsyncProxyOptions.md"
+    },
+    {
+        "question": "What is the function of the 'clearFn' property in the AsyncProxyOptions interface?",
+        "answer": "The 'clearFn' property defines a function used to clear the memory associated with the proxy.",
+        "source": "interfaces_src_core_async_modules_base_interface.AsyncProxyOptions.md"
+    },
+    {
+        "question": "Under what specific condition are the 'onMerge' handlers invoked?",
+        "answer": "The 'onMerge' handlers are invoked when a task merges with another task that has the same label and uses the 'join: true' strategy.",
+        "source": "interfaces_src_core_async_modules_base_interface.AsyncProxyOptions.md"
+    },
+    {
+        "question": "By default, does an Async proxy support multiple calls, and which property controls this behavior?",
+        "answer": "By default, it does not support multiple calls because the 'single' property defaults to 'true'. To support multiple callings, 'single' must be set to 'false'.",
+        "source": "interfaces_src_core_async_modules_base_interface.AsyncProxyOptions.md"
+    },
+    {
+        "question": "What is the default value of the 'promise' property in the AsyncCbOptions interface?",
+        "answer": "The default value is false.",
+        "source": "interfaces_src_core_async_modules_base_interface.AsyncCbOptions.md"
+    },
+    {
+        "question": "Which interface does AsyncCbOptions inherit from?",
+        "answer": "It inherits from the AsyncOptions interface.",
+        "source": "interfaces_src_core_async_modules_base_interface.AsyncCbOptions.md"
+    },
+    {
+        "question": "How does the 'join' property behave when set to 'replace'?",
+        "answer": "All tasks with the same label are joined (replaced) to the last one; this strategy is only applicable for promises.",
+        "source": "interfaces_src_core_async_modules_base_interface.AsyncCbOptions.md"
+    },
+    {
+        "question": "What happens if a new task is provided with a 'label' that is already in use by a previous task?",
+        "answer": "The previous task with the same label will be canceled.",
+        "source": "interfaces_src_core_async_modules_base_interface.AsyncCbOptions.md"
+    },
+    {
+        "question": "When exactly are the 'onMutedCall' handlers invoked?",
+        "answer": "They are invoked when a task is called while it is in a muted state.",
+        "source": "interfaces_src_core_async_modules_base_interface.AsyncCbOptions.md"
+    },
+    {
+        "question": "In the Async class, what happens to new tasks when the 'locked' property is set to true?",
+        "answer": "When 'locked' is true, all new tasks will not be registered.",
+        "source": "classes_src_core_async.default.md"
+    },
+    {
+        "question": "How does the 'worker' method manage multiple registrations of the same object?",
+        "answer": "Async increments a count of links related to the object every time it is registered; the count is de-incremented during destruction.",
+        "source": "classes_src_core_async.default.md"
+    },
+    {
+        "question": "When using 'wrapDataProvider', what is used as the default group name if none is explicitly provided?",
+        "answer": "If no group is provided, it is automatically taken from the provider's name.",
+        "source": "classes_src_core_async.default.md"
+    },
+    {
+        "question": "At what point does the Async class call a real object destructor for a wrapped worker?",
+        "answer": "A real object destructor is called when the number of links relating to that object reaches zero.",
+        "source": "classes_src_core_async.default.md"
+    },
+    {
+        "question": "What standard methods does 'wrapEventEmitter' add to a raw emitter to make its API more universal?",
+        "answer": "The wrapper adds standard methods such as 'on' and 'off'.",
+        "source": "classes_src_core_async.default.md"
+    },
+    {
+        "question": "What are the aliases for the 'shift' and 'unshift' methods in the queue API?",
+        "answer": "In the queue API, 'shift' is an alias for 'pop' and 'unshift' is an alias for 'push'.",
+        "source": "modules_src_core_queue.md"
+    },
+    {
+        "question": "How can you access the first element of a queue without removing it?",
+        "answer": "You can access the first element of the queue using the 'head' property.",
+        "source": "modules_src_core_queue.md"
+    },
+    {
+        "question": "What is the purpose of the 'clone' method in the queue API?",
+        "answer": "The 'clone' method creates and returns a new queue based on the current one.",
+        "source": "modules_src_core_queue.md"
+    },
+    {
+        "question": "In the provided simple implementation, which array method does the queue's 'pop' method call?",
+        "answer": "The 'pop' method calls 'this.internalQueue.shift()'.",
+        "source": "modules_src_core_queue.md"
+    },
+    {
+        "question": "Which exported class is an alias for 'core/queue/order'?",
+        "answer": "'OrderedQueue' is the alias for 'core/queue/order'.",
+        "source": "modules_src_core_queue.md"
+    },
+    {
+        "question": "If an array of keyset names is passed to the i18nFactory function, how is the priority of the keysets determined?",
+        "answer": "The priority is arranged based on the order of the elements in the array, with the first element having the highest priority.",
+        "source": "modules_src_core_prelude_i18n_helpers.md"
+    },
+    {
+        "question": "What is the purpose of using a 'keyset' in the i18nFactory function?",
+        "answer": "A keyset allows the application to share the same keys in different contexts, such as having different values for the same key in different components.",
+        "source": "modules_src_core_prelude_i18n_helpers.md"
+    },
+    {
+        "question": "Which function handles both resolving variables within a template string and selecting the correct plural form?",
+        "answer": "The resolveTemplate function.",
+        "source": "modules_src_core_prelude_i18n_helpers.md"
+    },
+    {
+        "question": "What does the pluralizeText function return when provided with a PluralTranslation list and a count?",
+        "answer": "It returns the correct plural form string from the list based on the provided count value.",
+        "source": "modules_src_core_prelude_i18n_helpers.md"
+    },
+    {
+        "question": "What arguments does the function returned by i18nFactory accept?",
+        "answer": "It accepts a key (string) and optional parameters (I18nParams).",
+        "source": "modules_src_core_prelude_i18n_helpers.md"
+    },
+    {
+        "question": "What happens if a translation key is requested but no corresponding translation exists for the given locale or keyset?",
+        "answer": "If there is no translation for the given locale or keyset, then the key itself will be displayed.",
+        "source": "modules_src_core_prelude_i18n.md"
+    },
+    {
+        "question": "When using the i18n function as a regular string tag, what is the specific technical limitation?",
+        "answer": "Forwarding additional parameters, such as those used for pluralization, is not possible when using the function as a string tag.",
+        "source": "modules_src_core_prelude_i18n.md"
+    },
+    {
+        "question": "How are plural translations structured in the language pack tuple?",
+        "answer": "They are specified as a tuple of four strings corresponding to the forms: [one, some, many, none].",
+        "source": "modules_src_core_prelude_i18n.md"
+    },
+    {
+        "question": "Does the global 'i18n' function require an explicit import to be used in an application?",
+        "answer": "No, the 'i18n' function is global and does not need to be explicitly imported.",
+        "source": "modules_src_core_prelude_i18n.md"
+    },
+    {
+        "question": "What properties are available on the 'locale' getter object?",
+        "answer": "The 'locale' getter provides 'value' (the locale value), 'isDefined' (boolean status), and 'isInitialized' (a promise for initialization).",
+        "source": "modules_src_core_prelude_i18n.md"
+    }
+]
