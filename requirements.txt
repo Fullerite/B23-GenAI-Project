@@ -5,6 +5,7 @@ langchain-text-splitters
 markdownify
 pandas
 python-dotenv
+pyyaml
 requests
 sentence-transformers
 streamlit
