@@ -3,3 +3,4 @@ __pycache__
 .env
 *.ipynb
 chroma_db
+data/core_docs
