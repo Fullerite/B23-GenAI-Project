@@ -23,5 +23,5 @@ To run the 50-question benchmark and generate the performance report:
 `python3 -m scripts.evaluate`
 
 ## Reproducibility Note
-- **Retriever:** Purely deterministic. A static local vector store (`ChromaDB`) and a fixed embedding model (`all-MiniLM-L6-v2`).
-- **Generator:** Variance is minimized by fixing the sampling temperature to `0.3`.
+**Retriever:** Purely deterministic. A static local vector store (`ChromaDB`) and a fixed embedding model (`all-MiniLM-L6-v2`).
+**Generator:** Variance is suppressed by pinning the random seed to `42` and fixing the sampling temperature to `0.3`
