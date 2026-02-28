@@ -53,6 +53,7 @@ class LLMClient:
             "think": False,
             "options": {
                 "temperature": 0.3,
+                "seed": 42,
                 "num_ctx": 8192,
                 "num_predict": 1024
             }
