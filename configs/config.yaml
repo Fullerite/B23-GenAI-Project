@@ -1,7 +1,7 @@
 data:
   main_data_dir: "data/core_docs"
   benchmark_data_path: "data/benchmark/benchmark_data.json"
-  benchmark_results_path: "results/benchmark_report.csv"
+  benchmark_results_path: "data/benchmark/benchmark_report.csv"
 scraper:
   start_url: "https://v4fire.github.io/Core/modules.html"
   base_domain: "v4fire.github.io/Core"
