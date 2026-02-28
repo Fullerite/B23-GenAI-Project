@@ -5,22 +5,24 @@ import aiohttp
 from bs4 import BeautifulSoup
 from markdownify import markdownify as md
 from urllib.parse import urljoin, urldefrag
+from scripts.misc import load_config
 
-
-START_URL = "https://v4fire.github.io/Core/modules.html"
-BASE_DOMAIN = "v4fire.github.io/Core"
-OUTPUT_DIR = "data/docs"
-CONCURRENCY_LIMIT = 20
-MIN_CONTENT_LENGTH = 50
-
+config = load_config()
+START_URL = config["scraper"]["start_url"]
+BASE_DOMAIN = config["scraper"]["base_domain"]
+OUTPUT_DIR = config["scraper"]["docs_dir"]
+CONCURRENCY_LIMIT = config["scraper"]["concurrency_limit"]
+MIN_CONTENT_LENGTH = config["scraper"]["min_context_length"]
 visited = set()
 queue = asyncio.Queue()
+
 
 def clean_markdown(text):
     if not text:
         return ""
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()
+
 
 def parse_and_save(url, html):
     soup = BeautifulSoup(html, "html.parser")
@@ -46,12 +48,12 @@ def parse_and_save(url, html):
     try:
         with open(filename, "w", encoding="utf-8") as f:
             f.write(f"# {title}\n")
-            f.write(f"Source: {url}\n\n")
             f.write(final_content)
         return True
     except Exception as e:
         print(f"Error saving {filename}: {e}")
         return False
+
 
 def extract_links(soup, current_url):
     links = []
@@ -66,6 +68,7 @@ def extract_links(soup, current_url):
                     links.append(clean_url)
     return links
 
+
 async def fetch(session, url):
     try:
         async with session.get(url, timeout=15) as response:
@@ -74,6 +77,7 @@ async def fetch(session, url):
     except Exception as e:
         print(f"Error fetching {url}: {e}")
     return None
+
 
 async def worker(session):
     while True:
