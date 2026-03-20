@@ -58,7 +58,8 @@ def load_and_chunk_files():
 
 
 def run_ingest():
-    collection = get_vector_collection()
+    collection_name = "docs_injected" if USE_CONTEXT_INJECTION else "docs_baseline"
+    collection = get_vector_collection(collection_name=collection_name)
     chunks = load_and_chunk_files()
 
     if not chunks:

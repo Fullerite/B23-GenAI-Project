@@ -7,6 +7,7 @@ from scripts.misc import load_config
 
 
 config = load_config()
+USE_CONTEXT_INJECTION = config["model"]["use_context_injection"]
 LLM_API_URL = config["model"]["llm_api_url"]
 DATA_FILE = config["data"]["benchmark_data_path"]
 OUTPUT_FILE = config["data"]["benchmark_results_path"]
@@ -47,7 +48,8 @@ def run_benchmark():
     with open(DATA_FILE, "r") as f:
         test_cases = json.load(f)
 
-    collection = get_vector_collection()
+    collection_name = "docs_injected" if USE_CONTEXT_INJECTION else "docs_baseline"
+    collection = get_vector_collection(collection_name)
     llm_client = LLMClient(
         base_url=LLM_API_URL,
         model=MODEL_ID

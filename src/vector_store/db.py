@@ -5,7 +5,6 @@ from sentence_transformers import SentenceTransformer
 
 
 DB_PATH = os.path.join(os.getcwd(), "chroma_db")
-COLLECTION_NAME = "docs"
 MODEL_NAME = "all-MiniLM-L6-v2"
 
 class SentenceTransformersEmbeddingFunction(EmbeddingFunction):
@@ -18,12 +17,12 @@ class SentenceTransformersEmbeddingFunction(EmbeddingFunction):
         return vectors.tolist()
 
 
-def get_vector_collection():
+def get_vector_collection(collection_name):
     embedding_function = SentenceTransformersEmbeddingFunction()
     client = chromadb.PersistentClient(path=DB_PATH)
 
     return client.get_or_create_collection(
-        name=COLLECTION_NAME,
+        name=collection_name,
         embedding_function=embedding_function,
         metadata={"hnsw:space": "cosine"}
     )
