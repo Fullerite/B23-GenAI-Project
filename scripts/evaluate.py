@@ -2,6 +2,7 @@ import json
 import pandas as pd
 from tqdm import tqdm
 from src.llm.wrapper import LLMClient
+from sentence_transformers import CrossEncoder
 from src.vector_store.db import get_vector_collection
 from scripts.misc import load_config
 
@@ -55,6 +56,9 @@ def run_benchmark():
         model=MODEL_ID
     )
 
+    print("Loading Cross-Encoder for Re-ranking...")
+    cross_encoder = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2', max_length=512)
+
     results = []
 
     for case in tqdm(test_cases, desc="Evaluating"):
@@ -62,16 +66,25 @@ def run_benchmark():
         answer = case["answer"]
         truth_source = case["source"]
 
-        search_res = collection.query(query_texts=[question], n_results=RETRIEVAL_TOP_K)
-        chunks = search_res["documents"][0]
-        metadatas = search_res["metadatas"][0]
+        search_res = collection.query(query_texts=[question], n_results=20)
+        docs_20 = search_res["documents"][0]
+        metas_20 = search_res["metadatas"][0]
 
-        retrieved_sources = [meta["id"].rsplit("_chunk_", 1)[0] for meta in metadatas]
+        cross_inp = [[question, doc.split("---\n")[-1]] for doc in docs_20]
+        cross_scores = cross_encoder.predict(cross_inp)
+
+        scored_results = list(zip(cross_scores, docs_20, metas_20))
+        scored_results.sort(key=lambda x: x[0], reverse=True)
+
+        top_5_docs = [x[1] for x in scored_results[:5]]
+        top_5_metas = [x[2] for x in scored_results[:5]]
+
+        retrieved_sources = [meta["id"].rsplit("_chunk_", 1)[0] for meta in top_5_metas]
         recall_score = 1 if truth_source in retrieved_sources else 0
 
         generated_answer = llm_client.generate_response(
             messages=[{"role": "user", "content": question}],
-            context_chunks=chunks
+            context_chunks=top_5_docs
         )
 
         faithfulness_score = evaluate_answer(
