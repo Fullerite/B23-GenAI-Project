@@ -1,8 +1,10 @@
+import re
 import json
+import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from src.llm.wrapper import LLMClient
-from sentence_transformers import CrossEncoder
+from rank_bm25 import BM25Okapi
 from src.vector_store.db import get_vector_collection
 from scripts.misc import load_config
 
@@ -36,9 +38,7 @@ def evaluate_answer(client, question, generated_answer, ground_truth):
     """.strip()
 
     try:
-        response = client.generate_response(
-            messages=[{"role": "user", "content": prompt}]
-        )
+        response = client.generate_response(messages=[{"role": "user", "content": prompt}])
         score = "".join(filter(str.isdigit, response))
         return int(score[0]) if score else 1
     except:
@@ -46,53 +46,61 @@ def evaluate_answer(client, question, generated_answer, ground_truth):
 
 
 def run_benchmark():
+    def _tokenize(text):
+        return re.findall(r"\w+", text.lower())
+
     with open(DATA_FILE, "r") as f:
         test_cases = json.load(f)
 
     collection_name = "docs_injected" if USE_CONTEXT_INJECTION else "docs_baseline"
     collection = get_vector_collection(collection_name)
-    llm_client = LLMClient(
-        base_url=LLM_API_URL,
-        model=MODEL_ID
-    )
+    llm_client = LLMClient(base_url=LLM_API_URL, model=MODEL_ID)
 
-    print("Loading Cross-Encoder for Re-ranking...")
-    cross_encoder = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2', max_length=512)
+    all_data = collection.get(include=["documents", "metadatas"])
+    all_docs = all_data["documents"]
+    all_metas = all_data["metadatas"]
+    tokenized_corpus = [_tokenize(doc) for doc in all_docs]
+    bm25 = BM25Okapi(tokenized_corpus)
 
     results = []
-
     for case in tqdm(test_cases, desc="Evaluating"):
         question = case["question"]
         answer = case["answer"]
         truth_source = case["source"]
 
-        search_res = collection.query(query_texts=[question], n_results=20)
-        docs_20 = search_res["documents"][0]
-        metas_20 = search_res["metadatas"][0]
+        vec_res = collection.query(query_texts=[question], n_results=20)
+        vec_ids = vec_res["ids"][0]
 
-        cross_inp = [[question, doc.split("---\n")[-1]] for doc in docs_20]
-        cross_scores = cross_encoder.predict(cross_inp)
+        q_tokens = _tokenize(question)
+        bm25_scores = bm25.get_scores(q_tokens)
+        top_20_bm25_idx = np.argsort(bm25_scores)[::-1][:20]
+        bm25_ids = [all_metas[i]["id"] for i in top_20_bm25_idx]
 
-        scored_results = list(zip(cross_scores, docs_20, metas_20))
-        scored_results.sort(key=lambda x: x[0], reverse=True)
+        rrf_scores = {}
+        for rank, doc_id in enumerate(vec_ids):
+            rrf_scores[doc_id] = rrf_scores.get(doc_id, 0) + 1.0 / (10 + rank)
+        for rank, doc_id in enumerate(bm25_ids):
+            rrf_scores[doc_id] = rrf_scores.get(doc_id, 0) + 1.0 / (10 + rank)
 
-        top_5_docs = [x[1] for x in scored_results[:5]]
-        top_5_metas = [x[2] for x in scored_results[:5]]
+        top_ids = sorted(rrf_scores.keys(), key=lambda x: rrf_scores[x], reverse=True)[:5]
+        
+        pool_docs = []
+        pool_metas = []
+        id_to_idx = {meta["id"]: i for i, meta in enumerate(all_metas)}
+        for doc_id in top_ids:
+            idx = id_to_idx[doc_id]
+            pool_docs.append(all_docs[idx])
+            pool_metas.append(all_metas[idx])
 
-        retrieved_sources = [meta["id"].rsplit("_chunk_", 1)[0] for meta in top_5_metas]
+        retrieved_sources = [meta["id"].rsplit("_chunk_", 1)[0] for meta in pool_metas]
         recall_score = 1 if truth_source in retrieved_sources else 0
 
         generated_answer = llm_client.generate_response(
             messages=[{"role": "user", "content": question}],
-            context_chunks=top_5_docs
+            context_chunks=pool_docs
         )
 
-        faithfulness_score = evaluate_answer(
-            llm_client,
-            question,
-            generated_answer,
-            answer)
-
+        faithfulness_score = evaluate_answer(llm_client, question, generated_answer, answer)
         clean_truth = truth_source.replace(".md", "").strip().lower()
         clean_gen = generated_answer.lower()
         citation_score = 1 if clean_truth in clean_gen else 0
