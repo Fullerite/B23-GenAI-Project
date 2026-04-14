@@ -11,3 +11,4 @@ requests
 sentence-transformers
 streamlit
 tqdm
+torchvision

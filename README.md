@@ -2,22 +2,22 @@
 1. Install requirements: `pip install -r requirements.txt`
 2. Configure environment: Create a `.env` file with `LLM_API_URL`.
 3. Configure the `configs/config.yaml` file for your use (see below).
-4. Local Fallback: For CPU-only reproduction, install Ollama and run `ollama run qwen3:1.7b`.
+4. Local Fallback: For CPU-only reproduction, install Ollama.
 
 ### Local Fallback
 For CPU-only reproduction, install Ollama and run the model you need.
 
-First, in a new terminal, pull the model:
-```
-ollama pull qwen3:1.7b
-```
-
-Then, in a new terminal, start the Ollama server in the background:
+First, in a new terminal, start the Ollama server in the background:
 ```
 ollama serve
 ```
 
-In your `.env` file, set `LLM_API_URL=http://localhost:11434`.
+Then, in a new terminal, pull the model:
+```
+ollama pull qwen3:1.7b
+```
+
+In your `.env` file, set `LLM_API_URL=http://localhost:11434`. In `config.yaml`, set `model.model_id` to `qwen3:1.7b`.
 
 ### Key configuration parameters
 - `model.model_id`: the name of the LLM (e.g., `qwen3:1.7b`)
