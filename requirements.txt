@@ -1,6 +1,7 @@
 aiohttp
 beautifulsoup4
 chromadb
+rank-bm25
 langchain-text-splitters
 markdownify
 pandas
