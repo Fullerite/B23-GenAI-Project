@@ -12,10 +12,9 @@ First, start the Ollama server in the background:
 ollama serve
 ```
 
-Then, in a new terminal, pull and run the model:
+Then, in a new terminal, pull the model:
 ```
 ollama pull qwen3:1.7b
-ollama run qwen3:1.7b
 ```
 
 In your `.env` file, set `LLM_API_URL=http://localhost:11434`.
