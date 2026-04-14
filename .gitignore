@@ -2,5 +2,6 @@ __pycache__
 .venv
 .env
 *.ipynb
+*.csv
+*.png
 chroma_db
-data/core_docs

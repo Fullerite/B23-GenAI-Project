@@ -1,5 +1,6 @@
 import re
 import json
+import os
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
@@ -8,13 +9,24 @@ from rank_bm25 import BM25Okapi
 from src.vector_store.db import get_vector_collection
 from scripts.misc import load_config
 
+
 config = load_config()
 LLM_API_URL = config["model"]["llm_api_url"]
+DATA_FILE = config["data"]["benchmark_data_path"]
 MODEL_ID = config["model"]["model_id"]
 RETRIEVAL_TOP_K = config["model"]["retrieval_top_k"]
-COLLECTION_NAME = config["model"]["collection_name"]
-BENCHMARK_FILE = config["data"]["benchmark_data_path"]
-OUTPUT_FILE = config["data"]["benchmark_results_path"]
+
+COLLECTIONS = [
+    "docs_no_context",
+    "docs_prefix",
+    "docs_suffix",
+    "docs_adaptive",
+    "docs_injected"
+]
+
+OUTPUT_DIR = "data/benchmark/ablation"
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
 
 def evaluate_answer(client, question, generated_answer, ground_truth):
     prompt = f"""
@@ -42,21 +54,27 @@ def evaluate_answer(client, question, generated_answer, ground_truth):
     except:
         return 1
 
-def run_benchmark():
-    def _tokenize(text):
-        return re.findall(r"\w+", text.lower())
 
-    with open(BENCHMARK_FILE, "r") as f:
-        test_cases = json.load(f)
+def run_benchmark_for_collection(collection_name):
+    print(f"\n{'='*60}")
+    print(f"Evaluating collection: {collection_name}")
+    print('='*60)
 
-    collection = get_vector_collection(COLLECTION_NAME)
+    collection = get_vector_collection(collection_name)
     llm_client = LLMClient(base_url=LLM_API_URL, model=MODEL_ID)
 
     all_data = collection.get(include=["documents", "metadatas"])
     all_docs = all_data["documents"]
     all_metas = all_data["metadatas"]
+
+    def _tokenize(text):
+        return re.findall(r"\w+", text.lower())
+
     tokenized_corpus = [_tokenize(doc) for doc in all_docs]
     bm25 = BM25Okapi(tokenized_corpus)
+
+    with open(DATA_FILE, "r") as f:
+        test_cases = json.load(f)
 
     results = []
     for case in tqdm(test_cases, desc="Evaluating"):
@@ -79,7 +97,7 @@ def run_benchmark():
         for rank, doc_id in enumerate(bm25_ids):
             rrf_scores[doc_id] = rrf_scores.get(doc_id, 0) + 1.0 / (10 + rank)
 
-        top_ids = sorted(rrf_scores.keys(), key=lambda x: rrf_scores[x], reverse=True)[:RETRIEVAL_TOP_K]
+        top_ids = sorted(rrf_scores.keys(), key=lambda x: rrf_scores[x], reverse=True)[:5]
 
         id_to_idx = {meta["id"]: i for i, meta in enumerate(all_metas)}
         pool_docs = []
@@ -110,13 +128,20 @@ def run_benchmark():
         })
 
     df = pd.DataFrame(results)
-    df.to_csv(OUTPUT_FILE, index=False)
+    output_path = os.path.join(OUTPUT_DIR, f"{collection_name}_results.csv")
+    df.to_csv(output_path, index=False)
 
-    print(f"Benchmark complete. Report saved to {OUTPUT_FILE}")
+    print(f"\n--- Results for {collection_name} ---")
+    print(f"Saved to: {output_path}")
     print(f"Avg Faithfulness: {df['Faithfulness Score'].mean():.2f} / 5.0")
     print(f"Retrieval Recall@{RETRIEVAL_TOP_K}: {df[f'Recall@{RETRIEVAL_TOP_K}'].mean() * 100:.1f}%")
     print(f"Citation Accuracy: {df['Citation Accuracy'].mean() * 100:.1f}%")
 
 
+def main():
+    for col in COLLECTIONS:
+        run_benchmark_for_collection(col)
+
+
 if __name__ == "__main__":
-    run_benchmark()
+    main()

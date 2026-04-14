@@ -1,25 +1,25 @@
 import os
 from tqdm import tqdm
-from langchain_text_splitters import MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter
+from langchain_text_splitters import (
+    MarkdownHeaderTextSplitter,
+    SentenceTransformersTokenTextSplitter
+)
 from src.vector_store.db import get_vector_collection
 from scripts.misc import load_config
 
 
 config = load_config()
 DATA_DIR = config["data"]["main_data_dir"]
-USE_CONTEXT_INJECTION = config["model"]["use_context_injection"]
-if USE_CONTEXT_INJECTION:
-    print("Chunking with context injection enabled...")
-else:
-    print("Chunking without context injection...")
+COLLECTION_NAME = config["model"]["collection_name"]
 
 
 def load_and_chunk_files():
     headers_to_split_on = [("#", "h1"), ("##", "h2"), ("###", "h3")]
     markdown_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
-    recursive_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=100
+    token_splitter = SentenceTransformersTokenTextSplitter(
+        model_name="sentence-transformers/all-MiniLM-L6-v2",
+        tokens_per_chunk=192,
+        chunk_overlap=20
     )
 
     final_chunks = []
@@ -37,19 +37,19 @@ def load_and_chunk_files():
             text = f.read()
 
         header_splits = markdown_splitter.split_text(text)
-        recursive_splits = recursive_splitter.split_documents(header_splits)
+        splits = token_splitter.split_documents(header_splits)
 
-        for idx, doc in enumerate(recursive_splits):
+        for idx, doc in enumerate(splits):
             if len(doc.page_content) < 50:
                 continue
 
-            if USE_CONTEXT_INJECTION:
-                sections = [doc.metadata.get(h) for h in ["h1", "h2", "h3"] if doc.metadata.get(h)]
-                context_header = " > ".join(sections)
-                doc.page_content = f"Context: {context_header}\nSource: {filename}\n---\n{doc.page_content}"
-            else:
-                doc.page_content = f"Source: {filename}\n---\n{doc.page_content}"
+            sections = [doc.metadata.get(h) for h in ["h1", "h2", "h3"] if doc.metadata.get(h)]
+            context_header = " > ".join(sections)
+            header_str = f"Context: {context_header}\n" if sections else ""
+            source_str = f"Source: {filename}\n"
+            separator = "---\n"
 
+            doc.page_content = f"{header_str}{source_str}{separator}{doc.page_content}"
             doc.metadata["id"] = f"{filename}_chunk_{idx}"
 
             final_chunks.append(doc)
@@ -58,8 +58,8 @@ def load_and_chunk_files():
 
 
 def run_ingest():
-    collection_name = "docs_injected" if USE_CONTEXT_INJECTION else "docs_baseline"
-    collection = get_vector_collection(collection_name=collection_name)
+    print(f"Building collection: {COLLECTION_NAME}")
+    collection = get_vector_collection(collection_name=COLLECTION_NAME)
     chunks = load_and_chunk_files()
 
     if not chunks:
@@ -74,6 +74,7 @@ def run_ingest():
             documents=[doc.page_content for doc in batch],
             metadatas=[doc.metadata for doc in batch]
         )
+    print("Ingestion complete")
 
 
 if __name__ == "__main__":

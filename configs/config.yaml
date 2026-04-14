@@ -1,7 +1,7 @@
 data:
   main_data_dir: "data/core_docs"
-  benchmark_data_path: "data/benchmark/benchmark_data.json"
-  benchmark_results_path: "data/benchmark/benchmark_report.csv"
+  benchmark_data_path: "data/benchmark/benchmark_data_multilabel.json"
+  benchmark_results_path: "data/benchmark/benchmark_report_final.csv"
 scraper:
   start_url: "https://v4fire.github.io/Core/modules.html"
   base_domain: "v4fire.github.io/Core"
@@ -9,7 +9,7 @@ scraper:
   concurrency_limit: 20
   min_context_length: 50
 model:
-  model_id: "qwen3:8b"
+  model_id: "qwen3:1.7b"  # CHANGE
   llm_api_url: ${LLM_API_URL}
-  use_context_injection: false
   retrieval_top_k: 5
+  collection_name: "docs_final"
