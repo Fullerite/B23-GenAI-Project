@@ -7,14 +7,14 @@
 ### Local Fallback
 For CPU-only reproduction, install Ollama and run the model you need.
 
-First, start the Ollama server in the background:
-```
-ollama serve
-```
-
-Then, in a new terminal, pull the model:
+First, in a new terminal, pull the model:
 ```
 ollama pull qwen3:1.7b
+```
+
+Then, in a new terminal, start the Ollama server in the background:
+```
+ollama serve
 ```
 
 In your `.env` file, set `LLM_API_URL=http://localhost:11434`.
