@@ -11,6 +11,7 @@ from scripts.misc import load_config
 load_dotenv()
 config = load_config()
 LLM_API_URL = config["model"]["llm_api_url"]
+MODEL_ID = config["model"]["model_id"]
 RETRIEVAL_TOP_K = config["model"]["retrieval_top_k"]
 COLLECTION_NAME = config["model"].get("collection_name", "docs_final")
 
@@ -71,7 +72,7 @@ if prompt := st.chat_input("Ask a question about the documentation..."):
         message_placeholder.markdown("Thinking...")
 
         try:
-            llm = LLMClient(base_url=LLM_API_URL)
+            llm = LLMClient(base_url=LLM_API_URL, model=MODEL_ID)
             
             route = get_routing_decision(prompt)
             context_chunks = []
